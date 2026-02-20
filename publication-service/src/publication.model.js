@@ -3,9 +3,8 @@ import mongoose from 'mongoose';
 
 const publicationSchema = new mongoose.Schema({
     titulo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'GestorOpiniones',
-        required: true
+        type: String,
+        required: [true, 'El título es obligatorio']
     },
     categoria: {
         type: String,
@@ -14,19 +13,20 @@ const publicationSchema = new mongoose.Schema({
     },
     texto: {
         type: String,
-        required: true
+        required: [true, 'El texto es obligatorio']
     },
-    autor: {
+    user: {
         type: String,
-        required: true,
-        min: 1
-    },
+        required: true
+    },    
     fecha: {
-        type: Date,
-        default: Date.now
-    }
+    type: Date,
+    default: Date.now
+},
+    isActive: {
+    type: Boolean,
+    default: true
+}
 }, { timestamps: true });
-
-publicationSchema.index({ restaurant: 1, number: 1 }, { unique: true });
 
 export default mongoose.model('Publication', publicationSchema);

@@ -11,7 +11,12 @@ export const validateJWT = (req, res, next) => {
         const cleanToken = token.replace('Bearer ', '');
         const decoded = jwt.verify(cleanToken, process.env.JWT_SECRET);
 
-        req.user = decoded;
+        // 🔥 Mapeamos los claims del .NET token
+        req.user = {
+            id: decoded.sub,   // viene del JwtRegisteredClaimNames.Sub
+            role: decoded.role
+        };
+
         next();
     } catch (err) {
         return res.status(401).json({ message: 'Invalid token' });

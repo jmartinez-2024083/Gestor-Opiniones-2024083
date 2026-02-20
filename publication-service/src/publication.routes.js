@@ -1,14 +1,13 @@
-'use strict'
 import { Router } from 'express';
-import { createPublication, getPublicationByUser, getPublicationById, updatePublication, deletePublication } from './publication.controller.js';
-import { validateJWT } from '../middlewares/validate-JWT.js';
+import { validateJWT } from '../middlewares/validate-jwt.js';
+import { createPublication, getMyPublications, getPublicationById, updatePublication, deletePublication} from './publication.controller.js';
 
 const router = Router();
 
 router.post('/', validateJWT, createPublication);
-router.get('/user/:userId', validateJWT, getPublicationByUser);
-router.get('/:id', validateJWT, getPublicationById);
-router.put('/:id', validateJWT, updatePublication);
-router.delete('/:id', validateJWT, deletePublication);
+router.get('/my-publications', validateJWT, getMyPublications);
+router.get('/my-publications', validateJWT, getPublicationById);
+router.put('/my-publications/:id', validateJWT, updatePublication);
+router.delete('/my-publications/:id', validateJWT, deletePublication);
 
 export default router;
