@@ -8,9 +8,13 @@ yarn-error.log
 logs/
 *.log
 
-## [Build]
-dist/
-build/
+## [.NET Build]
+obj/
+bin/
+
+## [.NET Sensitive]
+appsettings.Development.json
+appsettings.Production.json
 
 ## [OS Specific]
 .DS_Store
