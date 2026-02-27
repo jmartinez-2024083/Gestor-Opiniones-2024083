@@ -5,28 +5,56 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import { dbConnection } from './db.js';
-import commitRoutes from '../src/commit.routes.js';
+import { corsOptions } from './cors.configuration.js';
+import { helmetOptions } from './helmet.configuration.js';
+import { requestLimit } from './rateLimit.configuration.js';
+import commentRoutes from '../src/comment.routes.js';
+import { errorHandler } from '../middlewares/handle-errors.js';
+import { notFound } from '../middlewares/not-found.js';
 
-/**
- * Inicializa y levanta el servidor
- */
+const BASE_PATH = '/gestoropiniones/v1';
+
+const middlewares = (app) => {
+    app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+    app.use(express.json({ limit: '10mb' }));
+    app.use(cors(corsOptions));
+    app.use(morgan('dev'));
+    app.use(helmet(helmetOptions));
+    app.use(requestLimit);
+};
+
+const routes = (app) => {
+    app.get(`${BASE_PATH}/health`, (req, res) => {
+        res.status(200).json({
+            status: 'healthy',
+            service: 'Comments Service'
+        });
+    });
+
+    app.use(`${BASE_PATH}/comments`, commentRoutes);
+
+    // Siempre al final
+    app.use(notFound);
+    app.use(errorHandler);
+};
+
 export const initServer = async () => {
     const app = express();
+    const PORT = process.env.PORT || 3004;
 
-    app.use(cors());
-    app.use(helmet());
-    app.use(morgan('dev'));
-    app.use(express.json());
+    app.set('trust proxy', 1);
 
-    // Ruta de prueba
-    app.get('/', (req, res) => res.send('API running'));
+    try {
+        middlewares(app);
+        await dbConnection();
+        routes(app);
 
-    // Rutas de commits
-    app.use('/comments', commitRoutes);
+        app.listen(PORT, () => {
+            console.log(`Comments service running on port: ${PORT}`);
+        });
 
-    // Conexión a MongoDB
-    await dbConnection();
-
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    } catch (err) {
+        console.error(`Error al iniciar el servidor: ${err.message}`);
+        process.exit(1);
+    }
 };

@@ -1,56 +1,94 @@
 'use strict';
 
-import * as commitService from './commit.service.js';
+import {
+    createCommentService,
+    getCommentsByPublicationService,
+    getCommentByIdService,
+    updateCommentService,
+    deleteCommentService
+} from './comment.service.js';
 
-/**
- * Crear commit
- */
-export const create = async (req, res) => {
+export const createComment = async (req, res, next) => {
     try {
         const { publicationId, content } = req.body;
-        const commit = await commitService.createCommit(req.user.id, publicationId, content);
-        res.status(201).json(commit);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+        const comment = await createCommentService(req.user.id, publicationId, content);
+
+        res.status(201).json({
+            success: true,
+            message: 'Comentario creado exitosamente',
+            comment
+        });
+    } catch (err) {
+        next(err);
     }
 };
 
-/**
- * Obtener commits por publicación
- */
-export const getByPublication = async (req, res) => {
+export const getCommentsByPublication = async (req, res, next) => {
     try {
         const { publicationId } = req.params;
-        const commits = await commitService.getCommitsByPublication(publicationId);
-        res.json(commits);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+        const comments = await getCommentsByPublicationService(publicationId);
+
+        res.json({
+            success: true,
+            total: comments.length,
+            comments
+        });
+    } catch (err) {
+        next(err);
     }
 };
 
-/**
- * Actualizar commit
- */
-export const update = async (req, res) => {
+export const updateComment = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { content } = req.body;
-        const commit = await commitService.updateCommit(id, req.user.id, content);
-        res.json(commit);
-    } catch (error) {
-        res.status(403).json({ message: error.message });
+        const comment = await getCommentByIdService(req.params.id);
+
+        if (!comment)
+            return res.status(404).json({
+                success: false,
+                message: 'Comentario no encontrado'
+            });
+
+        if (comment.userId.toString() !== req.user.id)
+            return res.status(403).json({
+                success: false,
+                message: 'No tienes permiso para editar este comentario'
+            });
+
+        const updated = await updateCommentService(req.params.id, req.body.content);
+
+        res.json({
+            success: true,
+            message: 'Comentario actualizado exitosamente',
+            comment: updated
+        });
+    } catch (err) {
+        next(err);
     }
 };
 
-/**
- * Eliminar commit
- */
-export const remove = async (req, res) => {
+export const deleteComment = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        await commitService.deleteCommit(id, req.user.id);
-        res.json({ message: 'Commit eliminado correctamente' });
-    } catch (error) {
-        res.status(403).json({ message: error.message });
+        const comment = await getCommentByIdService(req.params.id);
+
+        if (!comment)
+            return res.status(404).json({
+                success: false,
+                message: 'Comentario no encontrado'
+            });
+
+        if (comment.userId.toString() !== req.user.id)
+            return res.status(403).json({
+                success: false,
+                message: 'No tienes permiso para eliminar este comentario'
+            });
+
+        await deleteCommentService(req.params.id);
+
+        res.json({
+            success: true,
+            message: 'Comentario eliminado exitosamente'
+        });
+    } catch (err) {
+        next(err);
     }
 };
