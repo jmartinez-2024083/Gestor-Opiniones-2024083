@@ -53,13 +53,37 @@ Servicio de autenticación y gestión de usuarios implementado en Node.js y Expr
 ```
 Gestor-Opiniones-2024083/
 ├── auth-service/
-│   ├── configs/
-│   ├── helpers/
-│   ├── middlewares/
-│   └── src/
+│   ├── src/
+│   │   ├── AuthService.Api/
+│   │   ├── AuthService.Application/
+│   │   ├── AuthService.Domain/
+│   │   └── AuthService.Persistence/
+│   ├── AuthService.sln
+│   └── global.json
 │
 ├── postgres_db/
-│   └── docker-compose.yml            
+│   └── docker-compose.yml 
+│
+├── publication-service/
+│   ├── configs/
+│   ├── node_modules/
+│   ├── middlewares/
+│   ├── src/
+│   ├── .env
+│   ├── index.js
+│   ├── package.json
+│   └── pnpm-lock.yaml
+│
+│
+├── coments-service/
+│   ├── configs/
+│   ├── node_modules/
+│   ├── middlewares/
+│   ├── src/
+│   ├── .env
+│   ├── index.js
+│   ├── package.json
+│   └── pnpm-lock.yaml
 │
 ├── .gitignore
 ├── LICENSE
@@ -124,59 +148,41 @@ GET http://localhost:3001/api/auth/profile
 Authorization: Bearer <tu-jwt-token>
 ```
 
-## Roles y Permisos
+### publications (/publications)
 
-- **USER**: Usuario estándar (default al registrarse)
-- **ADMIN**: Administrador del sistema
-- **MODERATOR**: Moderador de contenido
-- **SUPER_ADMIN**: Super administrador
+| Método | Ruta                              | Descripción                          | Auth |
+| ------ | ----------------------------      | ------------------------------       | ---- |
+| POST   | /publications                     | Crear una nueva publicación          | Sí   |
+| GET    | /publications                     | Obtener todos las publicaciones      | Sí   |
+| GET    | /publications/my-publications     | Obtener una publicacion por usuario  | Sí   |
+| PUT    | /publications/my-publications/id  | Actualizar publicacion               | Sí   |
+| DELETE | /publications/my-publications/id  | Eliminar publicacion                 | Sí   |
 
-Los roles se configuran automáticamente mediante seeds en la base de datos.
+**create (con token):**
 
-## Modelos de Base de Datos
+```bash
+GET http://localhost:3003/gestoropiniones/v1/publications
+Authorization: Bearer <tu-jwt-token>
 
-### User
+{
+  "titulo": "",
+  "categoria": "POSITIVA",
+  "texto": "."
+}
+```
 
-- `id` (UUID, PK)
-- `username` (unique)
-- `email` (unique)
-- `passwordHash`
-- `emailVerified`
-- `isActive`
-- `createdAt`, `updatedAt`
+**update (con token):**
 
-### UserProfile
+```bash
+GET http://localhost:3003/gestoropiniones/v1/publications/my-publications/id
+Authorization: Bearer <tu-jwt-token>
 
-- `userId` (FK)
-- `firstName`
-- `lastName`
-- `phone`
-- `avatar` (URL Cloudinary)
-- `bio`
-
-### UserEmail
-
-- `userId` (FK)
-- `verificationToken`
-- `verificationTokenExpires`
-
-### UserPasswordReset
-
-- `userId` (FK)
-- `resetToken`
-- `resetTokenExpires`
-
-### Role
-
-- `id` (UUID, PK)
-- `name` (USER, ADMIN, etc.)
-- `description`
-
-### UserRole (Tabla intermedia many-to-many)
-
-- `userId` (FK)
-- `roleId` (FK)
-
+{
+  "titulo": "",
+  "categoria": "POSITIVA",
+  "texto": "."
+}
+```
 
 ## Notas de Desarrollo
 
