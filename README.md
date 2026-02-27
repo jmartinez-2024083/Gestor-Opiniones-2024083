@@ -1,6 +1,6 @@
 # Gestor de Opiniones 2024083
 
-Sistema de gestión de opiniones compuesto por tres microservicios independientes: autenticación, publicaciones y comentarios.
+Sistema de gestión de opiniones compuesto por tres microservicios independientes y un contenedor de base de datos.
 
 ## Estructura del Proyecto
 
@@ -42,11 +42,12 @@ Gestor-Opiniones-2024083/
 
 ## Servicios
 
-| Servicio            | Tecnología   | Puerto | Base de datos |
+| Componente          | Tecnología   | Puerto | Base de datos |
 | ------------------- | ------------ | ------ | ------------- |
 | auth-service        | .NET 8       | 5000   | PostgreSQL    |
 | publication-service | Node.js      | 3003   | MongoDB       |
 | comments-service    | Node.js      | 3004   | MongoDB       |
+| postgres_db         | Docker       | 5438   | —             |
 
 ## Requisitos Previos
 
@@ -102,6 +103,8 @@ pnpm run dev
 Cada servicio Node.js tiene un `.env.example` en su carpeta. Cópialo como `.env` y completa los valores.
 
 El auth-service usa `appsettings.Development.json` — crea ese archivo localmente con los valores reales basándote en `appsettings.json`.
+
+> ⚠️ Nunca subas archivos `.env` ni `appsettings.Development.json` al repositorio.
 
 ## Documentación de APIs
 
