@@ -1,49 +1,72 @@
 'use strict'
-import { createPublicationService, getPublicationsByUserService, getPublicationByIdService, updatePublicationService, deletePublicationService } from './publication.service.js';
+import {
+    createPublicationService,
+    getAllPublicationsService,
+    getPublicationsByUserService,
+    getPublicationByIdService,
+    updatePublicationService,
+    deletePublicationService
+} from './publication.service.js';
 
-export const createPublication = async (req, res) => {
+export const createPublication = async (req, res, next) => {
     try {
-
         const data = {
             ...req.body,
             user: req.user.id
         };
 
         const publication = await createPublicationService(data);
-        console.log("Decoded token:", req.user);
 
         res.status(201).json({
             success: true,
+            message: 'Publicación creada exitosamente',
             publication
         });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
-export const getMyPublications = async (req, res) => {
+export const getAllPublications = async (req, res, next) => {
     try {
-
-        const publications = await getPublicationsByUserService(req.user.id);
+        const publications = await getAllPublicationsService();
 
         res.json({
             success: true,
+            total: publications.length,
             publications
         });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
-export const getPublicationById = async (req, res) => {
+export const getMyPublications = async (req, res, next) => {
     try {
+        const publications = await getPublicationsByUserService(req.user.id);
 
+        res.json({
+            success: true,
+            total: publications.length,
+            publications
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getPublicationById = async (req, res, next) => {
+    try {
         const publication = await getPublicationByIdService(req.params.id);
 
         if (!publication)
-            return res.status(404).json({ message: 'Publicación no encontrada' });
+            return res.status(404).json({
+                success: false,
+                message: 'Publicación no encontrada'
+            });
 
         res.json({
             success: true,
@@ -51,53 +74,63 @@ export const getPublicationById = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
-export const updatePublication = async (req, res) => {
+export const updatePublication = async (req, res, next) => {
     try {
-
         const publication = await getPublicationByIdService(req.params.id);
 
         if (!publication)
-            return res.status(404).json({ message: 'Publicación no encontrada' });
+            return res.status(404).json({
+                success: false,
+                message: 'Publicación no encontrada'
+            });
 
         if (publication.user.toString() !== req.user.id)
-            return res.status(403).json({ message: 'No tienes permiso para editar esta publicación' });
+            return res.status(403).json({
+                success: false,
+                message: 'No tienes permiso para editar esta publicación'
+            });
 
         const updated = await updatePublicationService(req.params.id, req.body);
 
         res.json({
             success: true,
-            updated
+            message: 'Publicación actualizada exitosamente',
+            publication: updated
         });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
-export const deletePublication = async (req, res) => {
+export const deletePublication = async (req, res, next) => {
     try {
-
         const publication = await getPublicationByIdService(req.params.id);
 
         if (!publication)
-            return res.status(404).json({ message: 'Publicación no encontrada' });
+            return res.status(404).json({
+                success: false,
+                message: 'Publicación no encontrada'
+            });
 
         if (publication.user.toString() !== req.user.id)
-            return res.status(403).json({ message: 'No tienes permiso para eliminar esta publicación' });
+            return res.status(403).json({
+                success: false,
+                message: 'No tienes permiso para eliminar esta publicación'
+            });
 
-        const deleted = await deletePublicationService(req.params.id);
+        await deletePublicationService(req.params.id);
 
         res.json({
             success: true,
-            message: 'Publicación desactivada',
-            deleted
+            message: 'Publicación eliminada exitosamente'
         });
 
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
