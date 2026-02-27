@@ -9,6 +9,8 @@ import { corsOptions } from './cors.configuration.js';
 import { helmetOptions } from './helmet.configuration.js';
 import { requestLimit } from './rateLimit.configuration.js';
 import publicationRoutes from '../src/publication.routes.js';
+import { errorHandler } from '../middlewares/handle-errors.js';
+import { notFound } from '../middlewares/not-found.js';
 
 const BASE_PATH = '/gestoropiniones/v1';
 
@@ -22,7 +24,6 @@ const middlewares = (app) => {
 };
 
 const routes = (app) => {
-
     app.get(`${BASE_PATH}/health`, (req, res) => {
         res.status(200).json({
             status: 'healthy',
@@ -31,6 +32,9 @@ const routes = (app) => {
     });
 
     app.use(`${BASE_PATH}/publications`, publicationRoutes);
+
+    app.use(notFound);
+    app.use(errorHandler);
 };
 
 export const initServer = async () => {

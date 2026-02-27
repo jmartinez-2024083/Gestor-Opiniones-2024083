@@ -5,6 +5,10 @@ export const createPublicationService = async (data) => {
     return await Publication.create(data);
 };
 
+export const getAllPublicationsService = async () => {
+    return await Publication.find({ isActive: true }).sort({ createdAt: -1 });
+};
+
 export const getPublicationsByUserService = async (userId) => {
     return await Publication.find({
         user: userId,
@@ -23,7 +27,7 @@ export const updatePublicationService = async (id, data) => {
     return await Publication.findByIdAndUpdate(
         id,
         data,
-        { new: true }
+        { new: true, runValidators: true }
     );
 };
 

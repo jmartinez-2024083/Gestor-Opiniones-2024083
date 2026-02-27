@@ -1,30 +1,28 @@
 'use strict';
 
-import { mongoose } from '../configs/db.js'; // Importamos mongoose desde tu db.js
+import mongoose from 'mongoose';
 
-// Esquema de Commit (comentario)
-const commitSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema(
     {
         content: {
             type: String,
             required: [true, 'El contenido es obligatorio'],
+            minlength: [3, 'El contenido debe tener al menos 3 caracteres'],
+            maxlength: [500, 'El contenido no puede superar los 500 caracteres'],
             trim: true,
         },
         userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User', // Referencia a usuario
+            type: String,
             required: [true, 'El usuario es obligatorio'],
         },
         publicationId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Publication', // Referencia a publicación
+            type: String,
             required: [true, 'La publicación es obligatoria'],
         },
     },
     {
-        timestamps: true, // createdAt y updatedAt automáticos
+        timestamps: true,
     }
 );
 
-// Exportamos el modelo
-export const Commit = mongoose.model('Commit', commitSchema);
+export const Comment = mongoose.model('Comment', commentSchema);

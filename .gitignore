@@ -12,6 +12,9 @@ logs/
 obj/
 bin/
 
+#.env
+.env
+
 ## [.NET Sensitive]
 appsettings.Development.json
 appsettings.Production.json
